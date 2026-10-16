@@ -1,0 +1,657 @@
+MASTER PROMPT — UNIVERSAL SPORTS REGISTRATION SYSTEM
+ORGANIZATION: স্বপ্ন সারথী যুব সংঘ
+SPONSOR CREDIT: POWERED BY Ashikur Sourov
+
+ROLE
+Act as a senior full-stack software architect, UI/UX designer, database engineer, security engineer, and DevOps engineer. Build a complete, runnable, production-oriented sports registration and tournament management platform. Do not merely provide a plan or mockup. Create the actual project files, implement the features, run tests, fix errors, and document setup and deployment.
+
+IMPORTANT DEVELOPMENT RULES
+1. Inspect the existing project and runtime before modifying anything.
+2. Preserve existing user work. Never overwrite files blindly.
+3. Build incrementally and test each module.
+4. Do not leave fake buttons, placeholder routes, simulated payment success, or unimplemented TODOs in finished features.
+5. Never claim tests passed unless you ran them.
+6. If an external integration requires credentials, implement its real adapter, provide an .env.example, document setup, and show an honest unconfigured status until connected.
+7. Use maintainable modules, database migrations, input validation, structured logging, and clear error handling.
+8. The project must be runnable with Node.js and NPM on Linux/Ubuntu. Avoid mandatory Firebase or paid services.
+9. Use English identifiers in source code, with Bengali UI labels where appropriate.
+10. Provide the complete source code, README, database setup, tests, security guidance, and deployment instructions.
+
+1. TECHNOLOGY STACK
+Backend:
+- Node.js LTS and Express
+- REST API with modular routes, controllers, services, repositories, middleware, and validators
+- SQLite initially, with a migration path to PostgreSQL
+- Persistent database-backed jobs and notification queue
+- Secure session-based admin authentication
+- Telegram Bot API integration
+
+Frontend:
+- HTML5, CSS3, JavaScript
+- Mobile-first responsive UI
+- Accessible controls, loading indicators, empty states, error states, and success feedback
+- Progressive Web App support if practical
+- Avoid unnecessary heavy frontend frameworks
+
+Supporting libraries:
+- SQLite driver with transaction and backup support
+- bcrypt or Argon2 for password hashing
+- Helmet, rate limiting, CSRF protection where applicable, secure session configuration
+- Image validation and image processing
+- PDF generation and Excel/CSV export
+- QR code generation and server-side verification
+- Automated testing using a suitable Node.js test framework
+
+Pin compatible dependency versions and commit package-lock.json.
+
+2. ORGANIZATION AND BRANDING
+Official organization name: স্বপ্ন সারথী যুব সংঘ
+Official sponsor credit: POWERED BY Ashikur Sourov
+Facebook support URL: https://www.facebook.com/share/19WD5SbgRR/
+
+Admin must be able to configure:
+- Organization name
+- Logo and favicon
+- Theme and accent colors
+- Hero banner and event posters
+- Contact and support information
+- Sponsor credit and branding settings
+- Public website content
+
+Default branding must show the official organization name and sponsor credit above.
+
+3. PUBLIC SPORTS REGISTRATION WEBSITE
+Create a premium, visually striking, mobile-first sports portal.
+
+Design direction:
+- Landscape sports imagery and professional stadium atmosphere
+- Dark navy / black backgrounds with neon-green accents
+- Transparent glassmorphism cards, tasteful gradients, subtle glow, clear contrast
+- High-quality typography supporting Bengali and English
+- Smooth but lightweight animations
+- Modern sports-club branding
+- Responsive layout on small phones, tablets, and desktops
+- App-like mobile navigation and large touch targets
+- Fast page loading and optimized images
+- Accessible keyboard navigation and readable contrast
+
+Homepage sections:
+- Organization header and logo
+- Hero banner with current or upcoming tournament
+- Upcoming Events
+- Event details, date, venue, sport, fee, deadline, rules, and capacity
+- Prominent "রেজিস্ট্রেশন করুন" button
+- Registration status lookup
+- "প্লেয়ার কার্ড ডাউনলোড করুন" section
+- Frequently asked questions
+- Facebook support link
+- Footer with organization and sponsor branding
+
+All public content and event settings must be configurable by the admin. Do not hard-code event dates, fees, or tournament names.
+
+Allow visitors to register without requiring a university or institution field.
+
+4. TOURNAMENT AND EVENT MANAGEMENT
+Admin can:
+- Create, edit, publish, pause, close, and archive events
+- Set event name, slug, description, poster, logo, venue, date, deadline, rules, fee, and capacity
+- Choose sport type: football, cricket, or custom sport
+- Configure registration form fields per event
+- Define age limits and eligibility rules if required
+- Enable or disable optional fields
+- Set payment requirements
+- Configure event-specific jersey rules
+- View separate registration lists for each event
+- Configure whether the jersey number must be unique within an event or team
+- Export event reports
+
+Multiple events must be supported at the same time.
+
+5. PLAYER REGISTRATION FORM
+Collect the following information as configured by the admin:
+
+Required core fields:
+- Player full name
+- Father's name
+- Date of birth
+- Village name
+- Mobile phone number
+- Sport type
+- Selected tournament/event
+
+Additional fields:
+- Blood group
+- Jersey size
+- Jersey back name
+- Jersey number
+- Player photo, if required by the event
+- Payment information, if a fee applies
+- Additional event-specific fields configured by the admin
+
+Jersey requirements:
+- The player provides jersey size during initial registration.
+- The player enters the name to print on the back of the jersey during initial registration.
+- The player enters the preferred jersey number during initial registration.
+- Support configurable sizes such as S, M, L, XL, XXL, and XXXL.
+- Allow the admin to configure additional sizes and validation rules.
+- Allow the admin to choose whether duplicate jersey numbers are allowed globally, per event, or per team.
+- Show jersey sizes, back names, and jersey numbers in admin lists and exportable print-production reports.
+- Never silently change a player's requested jersey information.
+
+Validation:
+- Validate required fields and input lengths on both client and server.
+- Reject future dates of birth.
+- Validate phone number format without incorrectly assuming every phone number is globally unique.
+- Normalize phone numbers consistently where appropriate.
+- Prevent invalid or oversized uploads.
+- Show clear Bengali validation messages.
+- Store timestamps in a consistent format.
+
+Generate unique Player ID and Registration ID automatically on the server.
+
+6. STRICT DUPLICATE PROTECTION
+This is a critical requirement.
+
+Registration ID:
+- Every registration must have a unique, server-generated Registration ID.
+- Enforce uniqueness with a database UNIQUE constraint.
+- Never allow public clients to choose or overwrite Registration IDs.
+- Use collision-safe ID generation and retry on a database uniqueness conflict.
+- Ensure concurrent requests cannot create duplicate Registration IDs.
+- Support idempotency keys for repeated submissions where appropriate.
+- A retry after a timeout must not silently create a second registration for the same idempotent request.
+
+Player ID:
+- Each player record has a unique Player ID.
+
+Phone number policy:
+- The same phone or WhatsApp number may be used for multiple registrations where allowed.
+- Do not impose a global unique constraint on phone number.
+- A player may register for different events using the same phone number.
+- Detect possible repeated registrations within the same event using configurable checks and admin review.
+- Do not assume that two people with the same phone number are necessarily the same person.
+- Do not block unrelated registrations solely because their contact numbers match.
+
+Maintain duplicate-detection logs and explain rejected submissions clearly.
+
+Use transactions and database constraints as the final protection layer, not just frontend JavaScript.
+
+7. PLAYER CATEGORY AND PRICE MANAGEMENT
+Admin-controlled category system:
+- Create, rename, edit, deactivate, and reorder categories.
+- Examples such as A, B, C, D, Star, Gold, Silver, and Emerging are examples only.
+- Admin can create any category name.
+- Admin defines each category's price or base value.
+- Admin selects one or multiple players and assigns them to a category.
+- Admin can move players between categories and update prices with authorization.
+- Show category-wise player counts, lists, and aggregate values.
+- Filter and export players by category.
+- Maintain category assignment and price change history.
+- Show the assigned category and price in the admin interface.
+- Design the database so a future player auction system can be added without corrupting existing data.
+
+Keep these concepts separate:
+1. Registration fee paid by the player.
+2. Admin-defined player category price.
+3. Future auction base price and final winning bid.
+
+8. PLAYER CARD — FIXED DESIGN TEMPLATE
+CRITICAL VISUAL REQUIREMENT:
+Use the attached reference image as the primary design reference. Match its visual style and layout as closely as practical. Do not redesign each card independently.
+
+Fixed card characteristics:
+- Wide landscape card
+- Dark navy / black sports stadium background
+- Neon-green accents and premium sports branding
+- Organization logo and name at the top
+- Bengali/English typography
+- Player portrait in a framed panel on the left
+- Player details in a structured central panel
+- Jersey visual and jersey details in a separate area
+- QR verification panel
+- Tournament and registration information near the bottom
+- Sponsor credit at the bottom-right
+
+Exact organization name: স্বপ্ন সারথী যুব সংঘ
+Exact sponsor credit:
+POWERED BY
+Ashikur Sourov
+
+The sponsor credit MUST be placed at the BOTTOM-RIGHT of every player card, in both PNG and PDF versions.
+
+Player card fields:
+- Player photo, if available
+- Player name
+- Village name / address
+- Mobile phone number
+- Player ID
+- Event or tournament name
+- Sport type
+- Jersey size
+- Jersey back name
+- Jersey number
+- QR code for verification
+
+Do not expose father's name, date of birth, blood group, payment credentials, or other unnecessary private fields on the public card.
+
+Design consistency:
+- Use one shared card template and a shared rendering service.
+- Only player-specific and event-specific data should change.
+- Keep the same composition, fonts, colors, margins, and sponsor placement across all cards.
+- Use actual player images when supplied.
+- Do not invent player photos or personal data.
+- Provide a placeholder portrait only when no photo is available.
+- Ensure Bengali text renders correctly using appropriate fonts.
+- Do not use an unverified decorative QR code. Generate a real QR code linked to a secure verification endpoint.
+- Use high-resolution output suitable for printing, plus a PDF version.
+- Test long Bengali names, long village names, missing photos, and long jersey back names.
+- Prevent text overflow and clipping.
+- Support download as PNG and PDF.
+
+9. PLAYER CARD DOWNLOAD PORTAL
+Do NOT automatically send the player card to Telegram when a player registers.
+
+Instead:
+- Display "প্লেয়ার কার্ড ডাউনলোড করুন" below the registration form or in a clearly visible homepage section.
+- The player enters their mobile number.
+- Verify ownership through SMS OTP or another properly configured secure verification method.
+- Do not claim OTP works until a real provider is configured.
+- After verification, list eligible registrations associated with the verified number.
+- Allow the player to download their own card in high-quality PNG or PDF.
+- Support multiple events for the same verified number.
+- Apply rate limits and prevent number enumeration.
+- Never return another player's card solely because the requester knows their phone number.
+- Show helpful Bengali messages for invalid numbers, no registration, and temporary service failure.
+
+10. TELEGRAM BOT — FULL ADMIN CONTROL CENTER
+Implement a real Telegram Bot API integration.
+Only explicitly authorized Telegram user IDs may access admin functions. Do not trust usernames alone.
+
+Bot menu:
+- Dashboard
+- Players
+- Events
+- Categories and Prices
+- Payments
+- Blood Groups
+- Jersey Reports
+- Player Cards
+- Reports and Exports
+- Notifications
+- Backup and Restore
+- Audit Logs
+- Settings
+- Help
+
+Bot capabilities:
+- View registration counts and recent applications.
+- Search registrations by Registration ID, Player ID, or authorized search fields.
+- View player details subject to permissions.
+- Create and manage events.
+- Create categories, set category prices, and assign players.
+- View category-wise player lists.
+- View blood-group-specific lists using separate buttons.
+- Generate authorized PDF, CSV, and Excel reports.
+- Approve or reject submitted payments.
+- Manage registration status.
+- View notification and backup status.
+- Retry failed notification jobs.
+- Trigger a backup with confirmation.
+- Access safe recovery workflows with strict authorization.
+- Update public site content and settings where permitted.
+- View audit events.
+
+Telegram data handling:
+- Do not publish private player details in public groups.
+- Restrict sensitive data to authorized private admin chats.
+- Apply role checks to every callback and command.
+- Validate callback data on the server.
+- Rate-limit commands and log administrative actions.
+- Keep the bot token in environment configuration, never in source code.
+- Do not pretend an operation succeeded until the backend confirms success.
+- A Telegram outage must not prevent normal website registration.
+
+11. BLOOD GROUP DIRECTORY
+Provide a dedicated admin-only Blood Groups menu:
+A+, A-, B+, B-, AB+, AB-, O+, O-.
+
+Clicking a group displays the matching registered players in a structured list.
+
+Admin list fields may include:
+- Player name
+- Village
+- Contact number, only if required and authorized
+- Registration ID
+- Event
+
+Provide search, pagination, and authorized export.
+
+Blood group is sensitive personal information. Do not expose it on public cards or public APIs. Apply least-privilege access and document appropriate use and retention.
+
+12. PAYMENTS
+Support configurable payment methods:
+- bKash
+- Nagad
+- Rocket
+- Cash
+
+For each event:
+- Configure registration fee and payment instructions.
+- Configure recipient payment details.
+- Accept sender number, transaction ID, amount, timestamp, and optional receipt.
+- Record cash collection and issue a receipt where appropriate.
+- Support Pending, Submitted, Verified, Rejected, and Refunded statuses.
+- Detect duplicate transaction IDs within the appropriate provider/account scope.
+- Require authorized verification before treating a payment as confirmed.
+- Never treat a user-submitted transaction ID alone as proof of payment.
+- Keep payment history and audit logs.
+- Keep payment credentials and receipts private.
+- Design adapters for future official merchant APIs.
+
+Notification failure must not roll back a valid registration or payment transaction.
+
+13. NOTIFICATIONS AND RETRIES
+Notify authorized admins about:
+- New registrations
+- Payment submissions and verification
+- Registration approval/rejection
+- Backup failures
+- Server or integration errors that need attention
+
+Player notifications may use configured channels such as Telegram or SMS, subject to valid consent and provider configuration.
+
+Store:
+- Notification ID
+- Recipient
+- Channel
+- Status
+- Attempt count
+- Last attempt timestamp
+- Provider message ID
+- Error message
+- Created and updated timestamps
+
+Use a persistent job queue. Implement safe retry and deduplication.
+Do not create a second registration when retrying a notification.
+Do not claim that a message is delivered unless the provider confirms delivery.
+Handle interrupted jobs and uncertain send states carefully.
+Clearly distinguish queued, accepted, delivered, failed, and unconfigured states.
+
+14. AUTOMATIC BACKUP AND RESTORE
+Implement:
+- Scheduled full database backups.
+- Optional incremental or event-based backups.
+- Backup of necessary uploads, card assets, receipts, and reports.
+- A private Telegram copy of selected backup files when configured.
+- Backup logs with timestamps, sizes, checksums, and status.
+- Retry for failed backup jobs.
+- Retention rules and safe cleanup.
+- Encrypted offsite copies where practical.
+- A restore script and documented recovery procedure.
+- Restore validation and integrity checks.
+
+Important:
+- Use SQLite's supported backup mechanism or another consistent snapshot approach. Do not naively copy a live SQLite database file.
+- Never make Telegram the only backup destination.
+- Never upload secrets in plaintext to a Telegram chat.
+- Restrict backup and restore operations to Master Admin or explicitly authorized roles.
+- Require confirmation before destructive restore.
+- Create a safety backup before restoring.
+- Test that backups can actually be restored.
+- Document storage limits and Telegram upload limitations.
+- Report the true backup result; never simulate success.
+
+15. ADMIN DASHBOARD
+Create a premium responsive dashboard with:
+- Registration statistics
+- Event statistics
+- Category counts and assigned prices
+- Payment totals and outstanding verification
+- Recent registrations
+- Search and filters
+- Player management
+- Event management
+- Category and price management
+- Jersey production reports
+- Blood group directory
+- Card generation and download logs
+- Notification logs and retry
+- Backup history
+- Audit logs
+- System health
+- Branding and public-site settings
+
+Support pagination and server-side filtering for large datasets.
+
+16. REPORTS AND EXPORTS
+Provide:
+- All player registrations
+- Event-wise player lists
+- Category-wise player lists and aggregate values
+- Jersey size counts
+- Jersey back-name and number production lists
+- Blood-group lists for authorized admins
+- Payment and registration status reports
+- CSV, Excel, and PDF exports
+- Print-friendly A4 reports
+- Player card downloads
+
+Export only the fields the requesting role is allowed to access.
+
+17. SECURITY AND PRIVACY
+Implement:
+- Secure password hashing
+- Master Admin and role-based access control
+- Secure session cookies
+- Login rate limiting and brute-force protection
+- CSRF protection where applicable
+- Helmet and appropriate security headers
+- Strict input validation and parameterized database queries
+- Safe file upload validation
+- File size and type limits
+- Protection against path traversal
+- Secure error messages without leaking secrets
+- Audit logs for sensitive operations
+- Re-authentication or confirmation for destructive operations
+- Soft-delete where appropriate
+- Secret management through environment variables
+- .gitignore for .env, databases, receipts, backups, and private files
+- HTTPS deployment instructions
+- Privacy and data-retention guidance
+
+Never expose admin APIs without authorization.
+Never put private player data or bot tokens in frontend JavaScript.
+Never commit credentials to Git.
+
+18. DATABASE DESIGN
+Use migrations and proper foreign keys.
+
+Create suitable tables, including:
+- admins
+- admin_roles or role mappings
+- players
+- events
+- registrations
+- player_categories
+- category_assignments
+- payments
+- payment_methods
+- player_cards or card generation metadata
+- notification_jobs
+- notification_logs
+- backup_logs
+- settings
+- audit_logs
+- idempotency_keys
+- optional teams and team_players for future use
+
+Requirements:
+- Unique constraints on Player IDs and Registration IDs.
+- Appropriate indexes for search and event filtering.
+- No global unique constraint on phone numbers.
+- Separate player identity from event registration.
+- A player may have multiple registrations for different events.
+- Category prices must not be confused with registration fees.
+- Use transactions for multi-step operations.
+- Add migrations and sample development seed data.
+- Do not include real personal information in seed data.
+
+19. SUGGESTED PROJECT STRUCTURE
+universal-sports/
+  package.json
+  package-lock.json
+  server.js
+  .env.example
+  .gitignore
+  README.md
+  src/
+    app.js
+    config/
+    database/
+      migrations/
+      repositories/
+      seeds/
+    routes/
+    controllers/
+    services/
+      registration.service.js
+      player-card.service.js
+      category.service.js
+      payment.service.js
+      telegram.service.js
+      notification.service.js
+      backup.service.js
+      report.service.js
+    middleware/
+    validators/
+    jobs/
+    utils/
+  public/
+    index.html
+    tournaments.html
+    registration.html
+    card-download.html
+    status.html
+    assets/
+      css/
+      js/
+      images/
+    admin/
+  storage/
+    database/
+    uploads/
+    player-cards/
+    receipts/
+    backups/
+    logs/
+  scripts/
+    create-admin.js
+    migrate.js
+    backup.js
+    restore.js
+  tests/
+
+You may improve this structure if the project benefits from a clearer architecture.
+
+20. TESTING REQUIREMENTS
+Write and run tests for:
+- Registration validation
+- Concurrent Registration ID generation
+- Duplicate Registration ID rejection
+- Idempotent submission retries
+- Same phone number used for different events
+- Duplicate submission detection within one event
+- Category creation and price updates
+- Category assignment and change history
+- Payment verification
+- Unauthorized admin access
+- Unauthorized Telegram commands and callbacks
+- Player card generation and sponsor placement
+- Card download ownership verification
+- QR verification without private data leakage
+- Backup creation, checksum, and restoration
+- Notification retry and deduplication
+- File upload validation
+
+Do not state that a test passed unless it was executed.
+
+21. DEPLOYMENT AND RUNNING
+Provide exact setup instructions:
+- Required Node.js version
+- npm install
+- Environment setup
+- Database migrations
+- Initial Master Admin creation
+- Telegram Bot setup
+- Running in development
+- Running in production
+- Process restart configuration
+- HTTPS and public URL configuration
+- Backup configuration
+- Logs and troubleshooting
+
+Support Linux/Ubuntu and explain any Android-hosting limitations. A public website requires a reachable server, domain/tunnel or suitable hosting arrangement. Do not assume localhost is publicly accessible.
+
+Provide:
+- .env.example with placeholder values only
+- Clear startup and migration scripts
+- Health-check endpoint
+- Graceful shutdown handling
+- Backup and restore instructions
+- A production readiness checklist
+
+22. IMPLEMENTATION ORDER
+Phase 1:
+- Inspect environment and create project skeleton.
+- Configure Express, database, migrations, and error handling.
+- Implement admin authentication and roles.
+
+Phase 2:
+- Implement event management and public registration.
+- Add strict ID uniqueness and idempotency.
+- Implement player and registration administration.
+
+Phase 3:
+- Implement categories, prices, and player assignment.
+- Implement jersey size/name/number management.
+- Build the fixed-template player card renderer.
+- Implement secure card download.
+
+Phase 4:
+- Implement payment submission and verification.
+- Implement Telegram admin control center.
+- Add blood group lists, reports, and notifications.
+
+Phase 5:
+- Implement scheduled backup, offsite copies, restore, and retry queues.
+- Implement exports, audit logs, and system settings.
+
+Phase 6:
+- Run tests, fix bugs, verify security controls.
+- Test backup restoration.
+- Verify the player card against the attached reference image.
+- Provide setup and deployment instructions.
+
+23. FINAL ACCEPTANCE CRITERIA
+The project is not complete until:
+- The website can run locally using documented commands.
+- A Master Admin can log in securely.
+- An admin can create an event and configure its registration form.
+- A player can register and receive unique IDs.
+- Repeated submissions cannot create duplicate IDs.
+- The same phone number can be used for different events where permitted.
+- An admin can create categories, set prices, and assign players.
+- Players can submit jersey size, back name, and jersey number at initial registration.
+- A verified player can securely download their own card.
+- All cards share the same fixed visual template.
+- Every card displays POWERED BY Ashikur Sourov at the bottom-right.
+- The organization name is স্বপ্ন সারথী যুব সংঘ.
+- The QR verification endpoint does not leak private information.
+- Authorized Telegram admins can manage the implemented features.
+- Blood group lists are private and permission-controlled.
+- Payment status is based on real verification, not a simulated result.
+- Backups are created, checked, and restorable.
+- Errors, retries, and external integration failures are handled honestly.
+- Tests and deployment documentation are provided.
+
+Start by inspecting the existing environment. Then implement Phase 1 and continue in manageable, testable stages. If execution limits prevent finishing everything in one session, preserve the working code, document completed and remaining modules, and continue from the existing project rather than restarting or generating a fake completed project.
